@@ -14,9 +14,10 @@ const GRAIN = 0.04;       // film grain (0 = none)
 const SPEED = 0.15;       // breathing speed (0 = still until touched)
 const FOLLOW = 0.012;     // how softly the shapes follow the hand
 const STRENGTH = 0.6;     // colour strength (lower = sheerer)
-const SIZE = 1;           // overall size of the cluster
+const SIZE = 1;           // overall size of the shapes
 const COLORS = [[159,168,240],[230,240,190],[169,216,255],[247,190,225],[255,255,255]];
 const BLOBS = 4;          // number of soft spots
+const SPREAD = 0.28;      // minimum distance between shapes (higher = more scattered)
 // ---------------------------------
 
 const c=document.getElementById('c'),x=c.getContext('2d');
@@ -29,12 +30,18 @@ for(let i=0;i<gd.data.length;i+=4){const v=Math.random()*255;gd.data[i]=gd.data[
 gx.putImageData(gd,0,0);const gr=document.getElementById('grain');gr.style.backgroundImage=`url(${g.toDataURL()})`;gr.style.opacity=GRAIN;
 
 const R=Math.random,pick=a=>a[Math.floor(R()*a.length)];
-const cx0=.4+R()*.2, cy0=.45+R()*.2;     // where the cluster lives
-// a small constellation of soft, uneven spots
-const blobs=[...Array(BLOBS)].map(()=>({c:pick(COLORS),ox:(R()-.5)*.35,oy:(R()-.5)*.3,
+// scatter anchor points across the whole surface, keeping some distance between them
+const anchors=[];
+for(let tries=0;anchors.length<BLOBS+1&&tries<2000;tries++){
+  const a=[.12+R()*.76,.15+R()*.7];
+  if(anchors.every(b=>Math.hypot(a[0]-b[0],a[1]-b[1])>SPREAD))anchors.push(a);
+}
+while(anchors.length<BLOBS+1)anchors.push([.12+R()*.76,.15+R()*.7]);
+// soft, uneven spots, each in its own place
+const blobs=[...Array(BLOBS)].map((_,i)=>({c:pick(COLORS),ax:anchors[i+1][0],ay:anchors[i+1][1],
   r:.07+R()*.09,asp:.6+R()*.6,rot:R()*3.14,f:.4+R()*.8,ph:R()*10,dx:0,dy:0}));
 // one luminous sliver, like light caught in a fold
-const sliver={ox:(R()-.5)*.1,oy:(R()-.5)*.1,w:.22+R()*.08,h:.06+R()*.03,rot:-.35+R()*.3,ph:R()*10};
+const sliver={ax:anchors[0][0],ay:anchors[0][1],w:.22+R()*.08,h:.06+R()*.03,rot:-.35+R()*.3,ph:R()*10};
 const sc=document.createElement('canvas'),sx=sc.getContext('2d');
 
 const m={x:0,y:0,on:false,glow:0};
@@ -54,10 +61,10 @@ function frame(){
   t+=0.003*SPEED;
   if(BG){x.fillStyle=BG;x.fillRect(0,0,W,H);}else x.clearRect(0,0,W,H);
   m.glow=m.on?Math.min(1,m.glow+0.015):m.glow*0.992;
-  const S=Math.min(W,H)*SIZE, CX=W*cx0, CY=H*cy0;
+  const S=Math.min(W,H)*SIZE;
 
   for(const b of blobs){
-    const [px,py]=pull(b,CX+S*(b.ox+.03*Math.sin(t*b.f*6+b.ph)),CY+S*(b.oy+.03*Math.cos(t*b.f*5+b.ph)),S);
+    const [px,py]=pull(b,W*b.ax+S*.03*Math.sin(t*b.f*6+b.ph),H*b.ay+S*.03*Math.cos(t*b.f*5+b.ph),S);
     const r=S*b.r*(1+.08*Math.sin(t*b.f*4+b.ph));
     x.save();x.translate(px,py);x.rotate(b.rot);x.scale(1,b.asp);
     const rg=x.createRadialGradient(0,0,0,0,0,r);
@@ -77,7 +84,7 @@ function frame(){
   sx.globalCompositeOperation='destination-out';
   sx.beginPath();sx.ellipse(ccx+sw*.08,ccy-sh*1.1,sw*1.05,sh*2.2,0,0,6.283);sx.fill();
   sx.globalCompositeOperation='source-over';
-  const [spx,spy]=pull(sliver,CX+S*sliver.ox,CY+S*sliver.oy,S);
+  const [spx,spy]=pull(sliver,W*sliver.ax,H*sliver.ay,S);
   x.save();x.translate(spx,spy);x.rotate(sliver.rot+.05*Math.sin(t*2+sliver.ph));
   x.drawImage(sc,-ccx,-ccy);x.restore();
 
