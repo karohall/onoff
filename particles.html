@@ -11,7 +11,7 @@ canvas{display:block;width:100%;height:100%;filter:blur(22px);transform:scale(1.
 // ---- settings you can change ----
 const BG = '';               // '' = transparent, or a colour like '#e3e2ef'
 const GRAIN = 0.05;          // film grain strength (0 = none)
-const SPEED = 1;             // drift speed
+const SPEED = 0.2;             // drift speed
 const SHEATHS = [            // [start colour, end colour] per veil
   [[247,168,216],[169,216,255]],  // pearl pink -> ice blue
   [[247,233,138],[159,168,240]],  // soft yellow -> periwinkle
@@ -54,7 +54,7 @@ function frame(){
       let px=W*(p.bx+p.ax*Math.sin(t*p.f*6+v.ph)), py=H*(p.by+p.ay*Math.cos(t*p.f*5+v.ph*1.3));
       // touch bends the fabric toward the hand
       const tx=m.on?(m.x-px):0, ty=m.on?(m.y-py):0, d=Math.hypot(tx,ty)||1, k=m.on?Math.max(0,1-d/(S*.6))*.35:0;
-      p.dx+=(tx*k-p.dx)*0.04; p.dy+=(ty*k-p.dy)*0.04;
+      p.dx+=(tx*k-p.dx)*0.015; p.dy+=(ty*k-p.dy)*0.015;
       return [px+p.dx,py+p.dy];
     });
     const grad=x.createLinearGradient(P[0][0],P[0][1],P[3][0],P[3][1]);
