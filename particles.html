@@ -3,16 +3,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:transparent;}
-canvas{display:block;width:100%;height:100%;cursor:crosshair;filter:blur(28px);}
+canvas{display:block;width:100%;height:100%;filter:blur(28px);}
 #grain{position:fixed;inset:0;pointer-events:none;}
 </style></head>
 <body><canvas id="c"></canvas><div id="grain"></div>
 <script>
 // ---- settings you can change ----
-const STRENGTH = 0.3;     // how visible a bloom gets at its strongest (lower = fainter)
+const STRENGTH = 0.5;     // how visible a bloom gets at its strongest (lower = fainter)
 const LIFE = 12;          // seconds from first touch of water to gone
-const SIZE = 0.35;        // how far a bloom spreads (fraction of the surface)
-const MAXDROPS = 3;       // blooms alive at the same time
+const SIZE = 0.5;        // how far a bloom spreads (fraction of the surface)
+const MAXDROPS = 5;       // blooms alive at the same time
 const EVERY = [3, 7];     // seconds between new blooms (min, max)
 const COLORS = [[247,168,216],[247,233,138],[169,216,255],[159,168,240],[255,255,255]];
 const GRAIN = 0.035;      // fine grain, softens banding (0 = none)
